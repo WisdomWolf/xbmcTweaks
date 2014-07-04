@@ -1,17 +1,16 @@
-/* Tweaks for XBMC
+/ * Tweaks for XBMC
  * Tested with "Frodo" 12.2 / 12.3
- */
+ * /
 
-/* "Kürzlich hinzugefügt" richtig* berechnen:
- * Das Datum richtet sich nach dem Datum des Hinzufügens in die Datenbank
- * statt nach dem Created Datum der entsprechenden Datei.
- */
-DROP TRIGGER IF EXISTS `bi_files`;
+/ * "Recently Added" * properly compute:
+ * The date is determined by the date of adding in the database
+ * Instead of the Created date of the relevant file.
+ */ TRIGGER IF EXISTS `bi_files`;
 CREATE TRIGGER `bi_files` BEFORE INSERT ON `files` FOR EACH ROW SET NEW.dateAdded = now();
   
-/* Die sogenannten RESUME Bookmarks werden pro SQL Account angelegt
- * statt für Alle Benutzer.
- */ 
+/ * The so-called RESUME bookmarks are created for each SQL account
+ * Instead of for all users.
+ */  
 DROP TABLE IF EXISTS `bookmark`;
 DROP VIEW IF EXISTS `bookmark`;
 DROP TABLE IF EXISTS `bookmark_orig`;
@@ -41,9 +40,9 @@ CREATE VIEW `bookmark` AS
 	FROM bookmark_orig
 	WHERE bookmark_orig.sqlUser = SUBSTRING_INDEX(USER(),'@',1);
 
-/* Erzeugt die Tabelle, welche den 'watched' Status pro SQL Account verwaltet
- * statt ein Status für alle Benutzer
- */
+/ * Creates the table managing the 'watched' status per SQL account
+ * Instead of a status for all users
+ */ 
 DROP TABLE IF EXISTS `filestate`;
 CREATE TABLE `filestate` (
 	`idFile` INT(11) NOT NULL,
@@ -55,8 +54,8 @@ CREATE TABLE `filestate` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 
-/* Trigger der den Playcount etc überträgt
- */
+Transmits / * trigger of the PlayCount etc
+ */ 
 DELIMITER |
 DROP TRIGGER IF EXISTS `bu_files`; 
 CREATE TRIGGER `bu_files` BEFORE UPDATE ON `files` 
@@ -65,9 +64,9 @@ CREATE TRIGGER `bu_files` BEFORE UPDATE ON `files`
 		INSERT INTO filestate (idFile, lastPlayed, playCount, sqlUser) VALUES(new.idFile, new.lastPlayed, new.playCount, SUBSTRING_INDEX(USER(),'@',1));
 	END;
 
-/* Erzeugt die movieview neu. 
- * Enthält auch Änderungen für die RESUME bookmarks
- */
+/ * Creates the new movie view. 
+ * Includes changes for the RESUME bookmarks
+ */ 
 DROP VIEW IF EXISTS `movieview`;
 CREATE VIEW `movieview` AS
 	SELECT  movie.*,  sets.strSet AS strSet,  files.strFileName AS strFileName,  path.strPath AS strPath,  
@@ -81,8 +80,8 @@ CREATE VIEW `movieview` AS
 		LEFT JOIN filestate ON filestate.idFile = files.idFile AND filestate.sqlUser = SUBSTRING_INDEX(USER(),'@',1);
 		
 		
-/* View für Episoden(Serien) anpassen, um den watched state zu verteilen
- */		
+/ * View adjust for episodes (series) to the watched state to distribute
+ */ 		
 DROP VIEW IF EXISTS `episodeview`;		
 CREATE VIEW `episodeview` AS
 	SELECT 
@@ -100,8 +99,8 @@ CREATE VIEW `episodeview` AS
 	LEFT JOIN filestate ON filestate.idFile = files.idFile AND filestate.sqlUser = SUBSTRING_INDEX(USER(),'@',1);
 	
 
-/* View für Serien anpassen, um den watched state zu verteilen
- */		
+/ * Adjust for View Series to the watched state to distribute
+ */ 	
 DROP VIEW IF EXISTS `tvshowview`;
 CREATE VIEW `tvshowview` AS
 	SELECT 
