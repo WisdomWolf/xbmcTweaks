@@ -1,14 +1,15 @@
-/ * Tweaks for XBMC
+/* Tweaks for XBMC
  * Tested with "Frodo" 12.2 / 12.3
  * /
 
-/ * "Recently Added" * properly compute:
+/* "Recently Added" * properly compute:
  * The date is determined by the date of adding in the database
  * Instead of the Created date of the relevant file.
- */ TRIGGER IF EXISTS `bi_files`;
+ */
+DROP TRIGGER IF EXISTS `bi_files`;
 CREATE TRIGGER `bi_files` BEFORE INSERT ON `files` FOR EACH ROW SET NEW.dateAdded = now();
   
-/ * The so-called RESUME bookmarks are created for each SQL account
+/* The so-called RESUME bookmarks are created for each SQL account
  * Instead of for all users.
  */  
 DROP TABLE IF EXISTS `bookmark`;
@@ -40,7 +41,7 @@ CREATE VIEW `bookmark` AS
 	FROM bookmark_orig
 	WHERE bookmark_orig.sqlUser = SUBSTRING_INDEX(USER(),'@',1);
 
-/ * Creates the table managing the 'watched' status per SQL account
+/* Creates the table managing the 'watched' status per SQL account
  * Instead of a status for all users
  */ 
 DROP TABLE IF EXISTS `filestate`;
@@ -54,7 +55,7 @@ CREATE TABLE `filestate` (
 COLLATE='utf8_general_ci'
 ENGINE=InnoDB;
 
-Transmits / * trigger of the PlayCount etc
+/* trigger of the PlayCount etc
  */ 
 DELIMITER |
 DROP TRIGGER IF EXISTS `bu_files`; 
@@ -64,7 +65,7 @@ CREATE TRIGGER `bu_files` BEFORE UPDATE ON `files`
 		INSERT INTO filestate (idFile, lastPlayed, playCount, sqlUser) VALUES(new.idFile, new.lastPlayed, new.playCount, SUBSTRING_INDEX(USER(),'@',1));
 	END;
 
-/ * Creates the new movie view. 
+/* Creates the new movie view. 
  * Includes changes for the RESUME bookmarks
  */ 
 DROP VIEW IF EXISTS `movieview`;
@@ -80,7 +81,7 @@ CREATE VIEW `movieview` AS
 		LEFT JOIN filestate ON filestate.idFile = files.idFile AND filestate.sqlUser = SUBSTRING_INDEX(USER(),'@',1);
 		
 		
-/ * View adjust for episodes (series) to the watched state to distribute
+/* View adjust for episodes (series) to the watched state to distribute
  */ 		
 DROP VIEW IF EXISTS `episodeview`;		
 CREATE VIEW `episodeview` AS
@@ -99,7 +100,7 @@ CREATE VIEW `episodeview` AS
 	LEFT JOIN filestate ON filestate.idFile = files.idFile AND filestate.sqlUser = SUBSTRING_INDEX(USER(),'@',1);
 	
 
-/ * Adjust for View Series to the watched state to distribute
+/* Adjust for View Series to the watched state to distribute
  */ 	
 DROP VIEW IF EXISTS `tvshowview`;
 CREATE VIEW `tvshowview` AS
